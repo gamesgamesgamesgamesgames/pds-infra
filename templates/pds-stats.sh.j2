@@ -4,8 +4,8 @@
 
 # --- PDS application metrics ---
 
-ACCOUNT_DB="/pds/account.sqlite"
-ACTOR_BASE="/pds/actors"
+ACCOUNT_DB="{{ pds_data_dir }}/account.sqlite"
+ACTOR_BASE="{{ pds_data_dir }}/actors"
 
 # Active subscribeRepos connections (external clients connected to Caddy on 443)
 subscribers_tmp=$(mktemp)

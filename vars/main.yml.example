@@ -1,6 +1,7 @@
 # Copy this file to vars/main.yml and fill in your values.
 
 # PDS
+pds_data_dir: /pds
 pds_hostname: pds.example.com
 pds_admin_email: admin@example.com
 pds_image_tag: "0.4"

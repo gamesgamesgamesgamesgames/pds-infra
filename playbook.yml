@@ -6,27 +6,27 @@
     - vars/secrets.yml
   tasks:
     - name: Run PDS installer
-      shell: echo "n" | bash <(curl -fsSL https://raw.githubusercontent.com/bluesky-social/pds/main/installer.sh) /pds {{ pds_hostname }} {{ pds_admin_email }}
+      shell: echo "n" | bash <(curl -fsSL https://raw.githubusercontent.com/bluesky-social/pds/main/installer.sh) {{ pds_data_dir }} {{ pds_hostname }} {{ pds_admin_email }}
       args:
-        creates: /pds/account.sqlite
+        creates: "{{ pds_data_dir }}/account.sqlite"
 
     - name: Deploy pds.env
       template:
         src: templates/pds.env.j2
-        dest: /pds/pds.env
+        dest: "{{ pds_data_dir }}/pds.env"
         mode: "0600"
       notify: restart pds
 
     - name: Deploy PDS compose
       template:
         src: templates/docker-compose.pds.yml.j2
-        dest: /pds/compose.yaml
+        dest: "{{ pds_data_dir }}/compose.yaml"
         mode: "0644"
       notify: restart pds
 
     - name: Deploy pds.service
-      copy:
-        src: files/pds.service
+      template:
+        src: templates/pds.service.j2
         dest: /etc/systemd/system/pds.service
         mode: "0644"
       notify:
@@ -88,16 +88,16 @@
         group: "{{ item.group }}"
         mode: "0755"
       loop:
-        - { path: /pds/loki-data, owner: "10001", group: "10001" }
-        - { path: /pds/grafana-data, owner: "472", group: "472" }
-        - { path: /pds/grafana/provisioning/dashboards, owner: "472", group: "472" }
-        - { path: /pds/grafana/provisioning/datasources, owner: "472", group: "472" }
-        - { path: /pds/prometheus-data, owner: "65534", group: "65534" }
+        - { path: "{{ pds_data_dir }}/loki-data", owner: "10001", group: "10001" }
+        - { path: "{{ pds_data_dir }}/grafana-data", owner: "472", group: "472" }
+        - { path: "{{ pds_data_dir }}/grafana/provisioning/dashboards", owner: "472", group: "472" }
+        - { path: "{{ pds_data_dir }}/grafana/provisioning/datasources", owner: "472", group: "472" }
+        - { path: "{{ pds_data_dir }}/prometheus-data", owner: "65534", group: "65534" }
 
     - name: Deploy Grafana datasources config
       template:
         src: templates/grafana-datasources.yaml.j2
-        dest: /pds/grafana/provisioning/datasources/datasources.yaml
+        dest: "{{ pds_data_dir }}/grafana/provisioning/datasources/datasources.yaml"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -106,7 +106,7 @@
     - name: Deploy Grafana dashboards provider config
       copy:
         src: files/grafana/provisioning/dashboards/dashboards.yaml
-        dest: /pds/grafana/provisioning/dashboards/dashboards.yaml
+        dest: "{{ pds_data_dir }}/grafana/provisioning/dashboards/dashboards.yaml"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -115,7 +115,7 @@
     - name: Deploy Grafana dashboard JSON
       copy:
         src: files/grafana/provisioning/dashboards/pds-overview.json
-        dest: /pds/grafana/provisioning/dashboards/pds-overview.json
+        dest: "{{ pds_data_dir }}/grafana/provisioning/dashboards/pds-overview.json"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -124,7 +124,7 @@
     - name: Deploy Grafana system dashboard JSON
       copy:
         src: files/grafana/provisioning/dashboards/pds-system.json
-        dest: /pds/grafana/provisioning/dashboards/pds-system.json
+        dest: "{{ pds_data_dir }}/grafana/provisioning/dashboards/pds-system.json"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -133,7 +133,7 @@
     - name: Deploy Grafana custom index.html
       copy:
         src: files/grafana/index.html
-        dest: /pds/grafana/index.html
+        dest: "{{ pds_data_dir }}/grafana/index.html"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -142,7 +142,7 @@
     - name: Deploy Grafana custom CSS
       copy:
         src: files/grafana/custom.css
-        dest: /pds/grafana/custom.css
+        dest: "{{ pds_data_dir }}/grafana/custom.css"
         owner: "472"
         group: "472"
         mode: "0644"
@@ -151,55 +151,55 @@
     - name: Deploy Loki config
       template:
         src: templates/loki-config.yaml.j2
-        dest: /pds/loki-config.yaml
+        dest: "{{ pds_data_dir }}/loki-config.yaml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy Promtail config
       template:
         src: templates/promtail-config.yaml.j2
-        dest: /pds/promtail-config.yaml
+        dest: "{{ pds_data_dir }}/promtail-config.yaml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy Prometheus config
       template:
         src: templates/prometheus-config.yaml.j2
-        dest: /pds/prometheus-config.yaml
+        dest: "{{ pds_data_dir }}/prometheus-config.yaml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy Prometheus alert rules
       template:
         src: templates/prometheus-alerts.yaml.j2
-        dest: /pds/prometheus-alerts.yaml
+        dest: "{{ pds_data_dir }}/prometheus-alerts.yaml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy Alertmanager config
       template:
         src: templates/alertmanager-config.yaml.j2
-        dest: /pds/alertmanager-config.yaml
+        dest: "{{ pds_data_dir }}/alertmanager-config.yaml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy observability Docker Compose
       template:
         src: templates/docker-compose.observability.yml.j2
-        dest: /pds/docker-compose.observability.yml
+        dest: "{{ pds_data_dir }}/docker-compose.observability.yml"
         mode: "0644"
       notify: restart observability
 
     - name: Deploy Caddyfile
       template:
         src: templates/Caddyfile.j2
-        dest: /pds/caddy/etc/caddy/Caddyfile
+        dest: "{{ pds_data_dir }}/caddy/etc/caddy/Caddyfile"
         mode: "0644"
       notify: restart caddy
 
     - name: Deploy observability systemd service
-      copy:
-        src: files/observability.service
+      template:
+        src: templates/observability.service.j2
         dest: /etc/systemd/system/observability.service
         mode: "0644"
       notify:
@@ -216,12 +216,12 @@
     - name: Deploy PDS stats script
       template:
         src: templates/pds-stats.sh.j2
-        dest: /pds/pds-stats.sh
+        dest: "{{ pds_data_dir }}/pds-stats.sh"
         mode: "0755"
 
     - name: Deploy PDS stats systemd service
-      copy:
-        src: files/pds-stats.service
+      template:
+        src: templates/pds-stats.service.j2
         dest: /etc/systemd/system/pds-stats.service
         mode: "0644"
       notify: reload systemd

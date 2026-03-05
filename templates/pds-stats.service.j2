@@ -3,5 +3,5 @@ Description=PDS Stats Collector
 
 [Service]
 Type=oneshot
-ExecStart=/pds/pds-stats.sh
+ExecStart={{ pds_data_dir }}/pds-stats.sh
 StandardOutput=append:/var/log/pds-stats.log

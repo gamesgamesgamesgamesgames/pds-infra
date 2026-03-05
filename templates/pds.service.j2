@@ -1,0 +1,14 @@
+[Unit]
+Description=Bluesky PDS Service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory={{ pds_data_dir }}
+ExecStart=/usr/bin/docker compose --file {{ pds_data_dir }}/compose.yaml up --detach
+ExecStop=/usr/bin/docker compose --file {{ pds_data_dir }}/compose.yaml down
+
+[Install]
+WantedBy=default.target

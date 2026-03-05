@@ -55,6 +55,7 @@ Edit `vars/main.yml` to set your hostname, email, and any other preferences:
 
 | Variable                  | Description                  | Default              |
 | ------------------------- | ---------------------------- | -------------------- |
+| `pds_data_dir`            | PDS data directory path      | `/pds`               |
 | `pds_hostname`            | PDS domain name              | —                    |
 | `pds_admin_email`         | Admin contact email          | —                    |
 | `pds_image_tag`           | PDS Docker image tag         | `0.4`                |
@@ -82,7 +83,7 @@ ansible-vault encrypt vars/secrets.yml --vault-password-file .vault-pass
 If you're deploying to an existing server that already has a PDS, pull the secrets from it first:
 
 ```bash
-ssh root@<server-ip> 'cat /pds/pds.env'
+ssh root@<server-ip> 'cat /pds/pds.env'  # adjust path if using a custom pds_data_dir
 ```
 
 Copy `PDS_JWT_SECRET`, `PDS_ADMIN_PASSWORD`, and `PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX` into the corresponding `vault_pds_*` variables.
@@ -95,13 +96,13 @@ ansible-playbook playbook.yml --vault-password-file .vault-pass
 
 ## How it works
 
-On **first deploy**, the playbook runs the [official PDS installer script](https://github.com/bluesky-social/pds/blob/main/installer.sh), which installs Docker and sets up the initial PDS database. This step is skipped on subsequent runs (guarded by the existence of `/pds/account.sqlite`).
+On **first deploy**, the playbook runs the [official PDS installer script](https://github.com/bluesky-social/pds/blob/main/installer.sh), which installs Docker and sets up the initial PDS database. This step is skipped on subsequent runs (guarded by the existence of `<pds_data_dir>/account.sqlite`).
 
 After the installer, Ansible takes over managing the configuration files:
 
-- `/pds/pds.env` — PDS environment variables
-- `/pds/compose.yaml` — Docker Compose for PDS, Caddy, and Watchtower
-- `/pds/caddy/etc/caddy/Caddyfile` — Caddy reverse proxy config
+- `<pds_data_dir>/pds.env` — PDS environment variables
+- `<pds_data_dir>/compose.yaml` — Docker Compose for PDS, Caddy, and Watchtower
+- `<pds_data_dir>/caddy/etc/caddy/Caddyfile` — Caddy reverse proxy config
 - `/etc/systemd/system/pds.service` — Systemd unit for the PDS stack
 
 The observability stack runs as a separate Docker Compose file (`docker-compose.observability.yml`) managed by its own systemd unit, ordered to start after the PDS.
@@ -129,28 +130,33 @@ All secrets are loaded from the encrypted `vars/secrets.yml` vault file.
 
 | Template                              | Deploys to                               | Purpose                                                                          |
 | ------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------- |
-| `pds.env.j2`                          | `/pds/pds.env`                           | PDS environment config — hostname, secrets, feature flags                        |
-| `docker-compose.pds.yml.j2`           | `/pds/compose.yaml`                      | PDS, Caddy (reverse proxy + TLS), and Watchtower (auto-updates all containers)   |
-| `docker-compose.observability.yml.j2` | `/pds/docker-compose.observability.yml`  | Loki, Promtail, Prometheus, Alertmanager, and Grafana                            |
-| `Caddyfile.j2`                        | `/pds/caddy/etc/caddy/Caddyfile`         | Reverse proxy rules — PDS with on-demand TLS for handle subdomains, plus Grafana |
-| `grafana-datasources.yaml.j2`         | `/pds/grafana/provisioning/datasources/` | Auto-provisions Loki and Prometheus as Grafana data sources                      |
-| `loki-config.yaml.j2`                 | `/pds/loki-config.yaml`                  | Loki storage and retention settings                                              |
-| `promtail-config.yaml.j2`             | `/pds/promtail-config.yaml`              | Promtail scrape configs — Docker container logs and the PDS stats log            |
-| `prometheus-config.yaml.j2`           | `/pds/prometheus-config.yaml`            | Prometheus scrape targets — node_exporter and PDS stats endpoint                 |
-| `prometheus-alerts.yaml.j2`           | `/pds/prometheus-alerts.yaml`            | Alert rules for disk usage, high memory, PDS health, etc.                        |
-| `alertmanager-config.yaml.j2`         | `/pds/alertmanager-config.yaml`          | Alert routing — sends notifications to a Discord webhook                         |
-| `pds-stats.sh.j2`                     | `/pds/pds-stats.sh`                      | Shell script that queries PDS metrics and writes JSON to a log file              |
+| `pds.env.j2`                          | `<pds_data_dir>/pds.env`                           | PDS environment config — hostname, secrets, feature flags                        |
+| `docker-compose.pds.yml.j2`           | `<pds_data_dir>/compose.yaml`                      | PDS, Caddy (reverse proxy + TLS), and Watchtower (auto-updates all containers)   |
+| `docker-compose.observability.yml.j2` | `<pds_data_dir>/docker-compose.observability.yml`  | Loki, Promtail, Prometheus, Alertmanager, and Grafana                            |
+| `Caddyfile.j2`                        | `<pds_data_dir>/caddy/etc/caddy/Caddyfile`         | Reverse proxy rules — PDS with on-demand TLS for handle subdomains, plus Grafana |
+| `grafana-datasources.yaml.j2`         | `<pds_data_dir>/grafana/provisioning/datasources/` | Auto-provisions Loki and Prometheus as Grafana data sources                      |
+| `loki-config.yaml.j2`                 | `<pds_data_dir>/loki-config.yaml`                  | Loki storage and retention settings                                              |
+| `promtail-config.yaml.j2`             | `<pds_data_dir>/promtail-config.yaml`              | Promtail scrape configs — Docker container logs and the PDS stats log            |
+| `prometheus-config.yaml.j2`           | `<pds_data_dir>/prometheus-config.yaml`            | Prometheus scrape targets — node_exporter and PDS stats endpoint                 |
+| `prometheus-alerts.yaml.j2`           | `<pds_data_dir>/prometheus-alerts.yaml`            | Alert rules for disk usage, high memory, PDS health, etc.                        |
+| `alertmanager-config.yaml.j2`         | `<pds_data_dir>/alertmanager-config.yaml`          | Alert routing — sends notifications to a Discord webhook                         |
+| `pds-stats.sh.j2`                     | `<pds_data_dir>/pds-stats.sh`                      | Shell script that queries PDS metrics and writes JSON to a log file              |
 
 ### Static files
 
 | File                    | Deploys to                                  | Purpose                                                                         |
 | ----------------------- | ------------------------------------------- | ------------------------------------------------------------------------------- |
-| `pds.service`           | `/etc/systemd/system/pds.service`           | Systemd unit that runs `docker compose up/down` for the PDS stack               |
-| `observability.service` | `/etc/systemd/system/observability.service` | Systemd unit for the observability stack, ordered after `pds.service`           |
 | `node-exporter.service` | `/etc/systemd/system/node-exporter.service` | Systemd unit for the Prometheus node_exporter binary                            |
-| `pds-stats.service`     | `/etc/systemd/system/pds-stats.service`     | Oneshot service that runs the PDS stats collection script                       |
 | `pds-stats.timer`       | `/etc/systemd/system/pds-stats.timer`       | Timer that triggers `pds-stats.service` on a schedule                           |
-| `grafana/`              | `/pds/grafana/`                             | Custom dashboards (PDS overview, system metrics), CSS, and index.html overrides |
+| `grafana/`              | `<pds_data_dir>/grafana/`                   | Custom dashboards (PDS overview, system metrics), CSS, and index.html overrides |
+
+The following systemd units are deployed as **templates** (in `templates/`) since they reference `pds_data_dir`:
+
+| Template                      | Deploys to                                  | Purpose                                                                         |
+| ----------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `pds.service.j2`              | `/etc/systemd/system/pds.service`           | Systemd unit that runs `docker compose up/down` for the PDS stack               |
+| `observability.service.j2`    | `/etc/systemd/system/observability.service` | Systemd unit for the observability stack, ordered after `pds.service`           |
+| `pds-stats.service.j2`        | `/etc/systemd/system/pds-stats.service`     | Oneshot service that runs the PDS stats collection script                       |
 
 ### Variables
 
@@ -166,7 +172,7 @@ Ansible Vault-encrypted file containing sensitive values. Gitignored — use `va
 
 ### S3-compatible blob storage
 
-By default, blobs are stored on disk at `/pds/blocks`. To use an S3-compatible provider (AWS S3, Cloudflare R2, Tigris, MinIO, etc.), set `pds_blobstore_type` to `s3` in `vars/main.yml` and uncomment the S3 variables:
+By default, blobs are stored on disk at `<pds_data_dir>/blocks`. To use an S3-compatible provider (AWS S3, Cloudflare R2, Tigris, MinIO, etc.), set `pds_blobstore_type` to `s3` in `vars/main.yml` and uncomment the S3 variables:
 
 ```yaml
 pds_blobstore_type: s3
