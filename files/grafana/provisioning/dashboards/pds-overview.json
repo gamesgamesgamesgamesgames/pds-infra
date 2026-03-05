@@ -306,7 +306,7 @@
       "fieldConfig": { "defaults": { "color": { "fixedColor": "green", "mode": "fixed" }, "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 } } },
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
       "id": 16,
-      "targets": [{ "expr": "max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_records [$__auto])", "legendFormat": "Total Records", "queryType": "range", "refId": "A" }],
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_records [$__auto]))", "legendFormat": "Total Records", "refId": "A" }],
       "title": "Records Over Time",
       "type": "timeseries"
     },
@@ -315,7 +315,7 @@
       "fieldConfig": { "defaults": { "color": { "fixedColor": "purple", "mode": "fixed" }, "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 } } },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
       "id": 17,
-      "targets": [{ "expr": "max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_blobs [$__auto])", "legendFormat": "Total Blobs", "queryType": "range", "refId": "A" }],
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_blobs [$__auto]))", "legendFormat": "Total Blobs", "refId": "A" }],
       "title": "Blobs Over Time",
       "type": "timeseries"
     },
