@@ -9,7 +9,7 @@ ACTOR_BASE="{{ pds_data_dir }}/actors"
 
 # Active subscribeRepos connections (external clients connected to Caddy on 443)
 subscribers_tmp=$(mktemp)
-ss -tn state established '( sport = :443 )' | tail -n +2 | awk '{print $4}' | sed 's/:[0-9]*$//' > "$subscribers_tmp"
+ss -tn state established '( sport = :443 )' | tail -n +2 | awk '{print $4}' | sed 's/:[0-9]*$//; s/^\[::ffff://; s/\]$//' > "$subscribers_tmp"
 subscribe_repos_connections=$(wc -l < "$subscribers_tmp")
 
 # Account-level stats
