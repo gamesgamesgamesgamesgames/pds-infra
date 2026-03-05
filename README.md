@@ -40,7 +40,29 @@ openssl rand -base64 32 > .vault-pass
 chmod 600 .vault-pass
 ```
 
-### 3. Create the secrets file
+### 3. Configure variables
+
+```bash
+cp vars/main.yml.example vars/main.yml
+```
+
+Edit `vars/main.yml` to set your hostname, email, and any other preferences:
+
+| Variable                  | Description                  | Default              |
+| ------------------------- | ---------------------------- | -------------------- |
+| `pds_hostname`            | PDS domain name              | —                    |
+| `pds_admin_email`         | Admin contact email          | —                    |
+| `pds_image_tag`           | PDS Docker image tag         | `0.4`                |
+| `pds_blob_upload_limit`   | Max blob upload size (bytes) | `104857600` (100 MB) |
+| `pds_blobstore_type`      | Blob storage backend         | `disk`               |
+| `pds_invite_required`     | Require invite codes         | `true`               |
+| `pds_rate_limits_enabled` | Enable rate limiting         | `true`               |
+| `grafana_hostname`        | Grafana domain name          | —                    |
+| `swap_enabled`            | Create and enable swap file  | `true`               |
+| `swap_size`               | Swap file size               | `4G`                 |
+| `swap_swappiness`         | Kernel swappiness value      | `10`                 |
+
+### 4. Create the secrets file
 
 ```bash
 cp vars/secrets.yml.example vars/secrets.yml
@@ -59,24 +81,6 @@ ssh root@<server-ip> 'cat /pds/pds.env'
 ```
 
 Copy `PDS_JWT_SECRET`, `PDS_ADMIN_PASSWORD`, and `PDS_PLC_ROTATION_KEY_K256_PRIVATE_KEY_HEX` into the corresponding `vault_pds_*` variables.
-
-### 4. Customize variables
-
-Edit `vars/main.yml` to set your hostname and any other preferences:
-
-| Variable                  | Description                  | Default              |
-| ------------------------- | ---------------------------- | -------------------- |
-| `pds_hostname`            | PDS domain name              | —                    |
-| `pds_admin_email`         | Admin contact email          | —                    |
-| `pds_image_tag`           | PDS Docker image tag         | `0.4`                |
-| `pds_blob_upload_limit`   | Max blob upload size (bytes) | `104857600` (100 MB) |
-| `pds_blobstore_type`      | Blob storage backend         | `disk`               |
-| `pds_invite_required`     | Require invite codes         | `true`               |
-| `pds_rate_limits_enabled` | Enable rate limiting         | `true`               |
-| `grafana_hostname`        | Grafana domain name          | —                    |
-| `swap_enabled`            | Create and enable swap file  | `true`               |
-| `swap_size`               | Swap file size               | `4G`                 |
-| `swap_swappiness`         | Kernel swappiness value      | `10`                 |
 
 ### 5. Deploy
 
@@ -147,7 +151,7 @@ All secrets are loaded from the encrypted `vars/secrets.yml` vault file.
 
 #### `vars/main.yml`
 
-Non-secret configuration. All values here are safe to commit.
+Non-secret configuration. Gitignored — use `vars/main.yml.example` as a template.
 
 #### `vars/secrets.yml`
 

@@ -1,3 +1,4 @@
+vars/main.yml
 vars/secrets.yml
 .vault-pass
 .env

@@ -1,5 +1,8 @@
-pds_hostname: pds.gamesgamesgamesgames.games
-pds_admin_email: admin@pds.gamesgamesgamesgames.games
+# Copy this file to vars/main.yml and fill in your values.
+
+# PDS
+pds_hostname: pds.example.com
+pds_admin_email: admin@example.com
 pds_image_tag: "0.4"
 pds_blob_upload_limit: 104857600
 pds_blobstore_type: disk  # "disk" or "s3"
@@ -8,15 +11,18 @@ pds_rate_limits_enabled: true
 pds_jwt_secret: "{{ vault_pds_jwt_secret }}"
 pds_admin_password: "{{ vault_pds_admin_password }}"
 pds_plc_rotation_key: "{{ vault_pds_plc_rotation_key }}"
-# Uncomment for S3-compatible blob storage:
+
+# Grafana
+grafana_hostname: grafana.example.com
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
+# S3-compatible blob storage (Uncomment to enable)
 # pds_blobstore_s3_bucket: my-pds-blobs
 # pds_blobstore_s3_region: us-east-1
 # pds_blobstore_s3_endpoint: https://s3.example.com
 # pds_blobstore_s3_force_path_style: true
 # pds_blobstore_s3_access_key: "{{ vault_pds_blobstore_s3_access_key }}"
 # pds_blobstore_s3_secret_key: "{{ vault_pds_blobstore_s3_secret_key }}"
-grafana_hostname: grafana.gamesgamesgamesgames.games
-grafana_admin_password: "{{ vault_grafana_admin_password }}"
 
 # Ports (all localhost-only except via Caddy)
 grafana_port: 3001
