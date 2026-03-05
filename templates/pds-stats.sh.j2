@@ -1,0 +1,90 @@
+#!/bin/bash
+# PDS stats collector — runs every minute, outputs JSON for Promtail
+# System metrics are handled by node_exporter + Prometheus
+
+# --- PDS application metrics ---
+
+ACCOUNT_DB="/pds/account.sqlite"
+ACTOR_BASE="/pds/actors"
+
+# Active subscribeRepos connections (external clients connected to Caddy on 443)
+subscribers_tmp=$(mktemp)
+ss -tn state established '( sport = :443 )' | tail -n +2 | awk '{print $4}' | sed 's/:[0-9]*$//' > "$subscribers_tmp"
+subscribe_repos_connections=$(wc -l < "$subscribers_tmp")
+
+# Account-level stats
+total_accounts=$(sqlite3 "$ACCOUNT_DB" "SELECT count(*) FROM actor")
+total_repos=$(sqlite3 "$ACCOUNT_DB" "SELECT count(*) FROM repo_root")
+accounts_today=$(sqlite3 "$ACCOUNT_DB" "SELECT count(*) FROM actor WHERE createdAt >= date('now')")
+active_sessions=$(sqlite3 "$ACCOUNT_DB" "SELECT count(*) FROM token WHERE expiresAt > datetime('now')")
+
+# Aggregate per-actor store stats
+total_records=0
+total_blobs=0
+total_blob_bytes=0
+records_today=0
+collections_tmp=$(mktemp)
+
+for store in "$ACTOR_BASE"/*/did:*/store.sqlite; do
+    [ -f "$store" ] || continue
+
+    r=$(sqlite3 "$store" "SELECT count(*) FROM record")
+    b=$(sqlite3 "$store" "SELECT count(*) FROM blob")
+    bs=$(sqlite3 "$store" "SELECT coalesce(sum(size),0) FROM blob")
+    rt=$(sqlite3 "$store" "SELECT count(*) FROM record WHERE indexedAt >= date('now')")
+    sqlite3 "$store" "SELECT collection, count(*) as cnt FROM record GROUP BY collection" | while IFS='|' read -r col cnt; do
+        echo "{\"collection\":\"$col\",\"count\":$cnt}"
+    done >> "$collections_tmp"
+
+    total_records=$((total_records + r))
+    total_blobs=$((total_blobs + b))
+    total_blob_bytes=$((total_blob_bytes + bs))
+    records_today=$((records_today + rt))
+done
+
+# Aggregate collection counts across all actors
+collections_json="[]"
+if [ -s "$collections_tmp" ]; then
+    collections_json=$(jq -sc '
+      flatten | group_by(.collection)
+      | map({collection: .[0].collection, count: (map(.count) | add)})
+      | . as $all | (map(.count) | add) as $total
+      | ($total * 0.02) as $threshold
+      | (map(select(.count >= $threshold)) + [{collection: "Other", count: (map(select(.count < $threshold)) | map(.count) | add // 0)}])
+      | map(select(.count > 0))
+      | sort_by(-.count)
+    ' "$collections_tmp")
+fi
+rm -f "$collections_tmp"
+
+echo "{\"msg\":\"pds_stats\",\"total_accounts\":$total_accounts,\"total_repos\":$total_repos,\"accounts_today\":$accounts_today,\"active_sessions\":$active_sessions,\"total_records\":$total_records,\"total_blobs\":$total_blobs,\"total_blob_bytes\":$total_blob_bytes,\"records_today\":$records_today,\"subscribe_repos_connections\":$subscribe_repos_connections,\"collections\":$collections_json}"
+
+# Output per-subscriber-IP log lines for Loki queries
+if [ -s "$subscribers_tmp" ]; then
+    sort "$subscribers_tmp" | uniq -c | sort -rn | while read -r cnt ip; do
+        echo "{\"msg\":\"pds_subscriber_stats\",\"remote_ip\":\"$ip\",\"connection_count\":$cnt}"
+    done
+fi
+rm -f "$subscribers_tmp"
+
+# Output per-collection log lines for Loki queries
+if [ "$collections_json" != "[]" ]; then
+    echo "$collections_json" | jq -c '.[] | {"msg":"pds_collection_stats","collection":.collection,"record_count":.count}'
+fi
+
+# Output per-creator stats for most active posters today
+creators_tmp=$(mktemp)
+for store in "$ACTOR_BASE"/*/did:*/store.sqlite; do
+    [ -f "$store" ] || continue
+    did=$(echo "$store" | grep -oP 'did:[^/]+')
+    ct=$(sqlite3 "$store" "SELECT count(*) FROM record WHERE indexedAt >= date('now')")
+    if [ "$ct" -gt 0 ]; then
+        handle=$(sqlite3 "$ACCOUNT_DB" "SELECT handle FROM actor WHERE did='$did'")
+        echo "{\"did\":\"$did\",\"handle\":\"${handle}\",\"record_count\":$ct}"
+    fi
+done > "$creators_tmp"
+
+if [ -s "$creators_tmp" ]; then
+    jq -sc 'sort_by(-.record_count) | .[0:10] | .[] | {msg:"pds_creator_stats", did:.did, handle:.handle, creator:("@" + .handle + " (" + .did + ")"), record_count:.record_count}' "$creators_tmp"
+fi
+rm -f "$creators_tmp"

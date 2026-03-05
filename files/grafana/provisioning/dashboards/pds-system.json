@@ -1,0 +1,82 @@
+{
+  "panels": [
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 },
+          "unit": "percent"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "targets": [
+        { "expr": "100 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100", "legendFormat": "CPU %", "refId": "A" },
+        { "expr": "node_load1", "legendFormat": "Load 1m", "refId": "B" },
+        { "expr": "node_load5", "legendFormat": "Load 5m", "refId": "C" },
+        { "expr": "node_load15", "legendFormat": "Load 15m", "refId": "D" }
+      ],
+      "title": "CPU & Load",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "fillOpacity": 30, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1, "stacking": { "mode": "normal" } },
+          "unit": "decbytes"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "targets": [
+        { "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes", "legendFormat": "Used", "refId": "A" },
+        { "expr": "node_memory_MemAvailable_bytes", "legendFormat": "Available", "refId": "B" }
+      ],
+      "title": "Memory Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "orange", "mode": "fixed" },
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 },
+          "unit": "decbytes"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "targets": [
+        { "expr": "node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes", "legendFormat": "Swap Used", "refId": "A" }
+      ],
+      "title": "Swap Usage",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "semi-dark-blue", "mode": "fixed" },
+          "custom": { "drawStyle": "line", "fillOpacity": 20, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 },
+          "unit": "decbytes"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "targets": [
+        { "expr": "node_filesystem_size_bytes{mountpoint=\"/\"} - node_filesystem_avail_bytes{mountpoint=\"/\"}", "legendFormat": "Disk Used", "refId": "A" }
+      ],
+      "title": "Disk Usage",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "1m",
+  "tags": ["pds", "system"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "PDS System",
+  "uid": "pds-system-metrics"
+}

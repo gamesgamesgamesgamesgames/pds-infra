@@ -1,0 +1,4 @@
+all:
+  hosts:
+    pds:
+      ansible_host: 37.27.85.22

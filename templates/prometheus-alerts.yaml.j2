@@ -1,0 +1,47 @@
+groups:
+  - name: system
+    rules:
+      - alert: HighCPU
+        expr: 100 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU usage above 80% for 5 minutes"
+          description: "Current CPU usage: {{ '{{' }} $value | printf \"%.1f\" {{ '}}' }}%"
+
+      - alert: HighMemory
+        expr: node_memory_MemAvailable_bytes < 536870912
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Available memory below 512MB for 5 minutes"
+          description: "Available memory: {{ '{{' }} $value | humanize1024 {{ '}}' }}B"
+
+      - alert: SwapActive
+        expr: node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes > 104857600
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Swap usage above 100MB for 5 minutes"
+          description: "Swap used: {{ '{{' }} $value | humanize1024 {{ '}}' }}B"
+
+      - alert: DiskAlmostFull
+        expr: 100 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 > 85
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk usage above 85%"
+          description: "Disk usage: {{ '{{' }} $value | printf \"%.1f\" {{ '}}' }}%"
+
+      - alert: ServiceDown
+        expr: up{job="node"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "node_exporter target is down"
+          description: "node_exporter has been unreachable for 2 minutes"

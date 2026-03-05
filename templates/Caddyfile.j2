@@ -1,0 +1,21 @@
+{
+    email admin@{{ pds_hostname }}
+    on_demand_tls {
+        ask http://localhost:3000/tls-check
+    }
+}
+
+*.{{ pds_hostname }}, {{ pds_hostname }} {
+    tls {
+        on_demand
+    }
+    log {
+        output stdout
+        format json
+    }
+    reverse_proxy http://localhost:3000
+}
+
+{{ grafana_hostname }} {
+    reverse_proxy localhost:{{ grafana_port }}
+}

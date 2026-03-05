@@ -1,0 +1,75 @@
+services:
+  loki:
+    image: grafana/loki:3.4
+    container_name: loki
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 1536m
+    volumes:
+      - /pds/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - /pds/loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  promtail:
+    image: grafana/promtail:3.4
+    container_name: promtail
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 256m
+    volumes:
+      - /pds/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log/pds-stats.log:/var/log/pds-stats.log:ro
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      - loki
+
+  prometheus:
+    image: prom/prometheus:v3.2.1
+    container_name: prometheus
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 256m
+    volumes:
+      - /pds/prometheus-config.yaml:/etc/prometheus/prometheus.yml:ro
+      - /pds/prometheus-alerts.yaml:/etc/prometheus/alerts.yaml:ro
+      - /pds/prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=30d
+      - --web.listen-address=127.0.0.1:{{ prometheus_port }}
+
+  alertmanager:
+    image: prom/alertmanager:v0.28.1
+    container_name: alertmanager
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 128m
+    volumes:
+      - /pds/alertmanager-config.yaml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --web.listen-address=127.0.0.1:{{ alertmanager_port }}
+    depends_on:
+      - prometheus
+
+  grafana:
+    image: grafana/grafana:11.5.2
+    container_name: grafana
+    network_mode: host
+    restart: unless-stopped
+    mem_limit: 512m
+    environment:
+      - GF_SERVER_HTTP_PORT={{ grafana_port }}
+      - GF_SERVER_ROOT_URL=https://{{ grafana_hostname }}
+      - GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - /pds/grafana-data:/var/lib/grafana
+      - /pds/grafana/provisioning:/etc/grafana/provisioning:ro
+      - /pds/grafana/custom.css:/usr/share/grafana/public/custom/custom.css:ro
+      - /pds/grafana/index.html:/usr/share/grafana/public/views/index.html:ro
+    depends_on:
+      - loki

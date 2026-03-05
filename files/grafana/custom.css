@@ -1,0 +1,18 @@
+/* Monospace font for table panels */
+.table-panel-table,
+.table-panel-table td,
+.table-panel-table th,
+[class*="Table"] td,
+[class*="Table"] th,
+[class*="table"] td,
+[class*="table"] th,
+[role="table"],
+[role="table"] *,
+[role="row"] > div,
+[role="columnheader"],
+[role="cell"],
+[data-testid="table-body"] *,
+[data-testid="table-header"] * {
+  font-family: 'Roboto Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace !important;
+  font-variant-numeric: tabular-nums !important;
+}

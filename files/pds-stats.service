@@ -1,0 +1,7 @@
+[Unit]
+Description=PDS Stats Collector
+
+[Service]
+Type=oneshot
+ExecStart=/pds/pds-stats.sh
+StandardOutput=append:/var/log/pds-stats.log

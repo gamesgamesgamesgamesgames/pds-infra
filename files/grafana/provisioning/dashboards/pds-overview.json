@@ -1,0 +1,387 @@
+{
+  "panels": [
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "semi-dark-yellow", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "id": 15,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap active_sessions [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Active Sessions",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "blue", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "id": 10,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_accounts [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Total Accounts",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "semi-dark-green", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "id": 14,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap records_today [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Records Today",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "green", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "id": 11,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_records [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Total Records",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "purple", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "id": 12,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_blobs [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Total Blobs",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "orange", "mode": "fixed" }, "noValue": "0", "unit": "decbytes" } },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "id": 13,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_blob_bytes [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Blob Storage",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "noValue": "0", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 100 }, { "color": "red", "value": 500 }] }, "unit": "reqpm" } },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 4 },
+      "id": 19,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true },
+      "targets": [{ "expr": "sum(count_over_time({container_name=\"caddy\"} | json | __error__=\"\" [5m])) / 5", "queryType": "range", "refId": "A" }],
+      "title": "Request Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "max": 100, "min": 0, "noValue": "0", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 5 }, { "color": "red", "value": 15 }] }, "unit": "percent" } },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 4 },
+      "id": 20,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true },
+      "targets": [{ "expr": "sum(count_over_time({container_name=\"caddy\"} | json | status >= 400 | __error__=\"\" [5m])) / sum(count_over_time({container_name=\"caddy\"} | json | __error__=\"\" [5m])) * 100", "queryType": "range", "refId": "A" }],
+      "title": "Error Rate",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "noValue": "0", "thresholds": { "steps": [{ "color": "green", "value": null }, { "color": "blue", "value": 100 }] } } },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 4 },
+      "id": 21,
+      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "showThresholdLabels": false, "showThresholdMarkers": true },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap records_today [1h]))", "queryType": "range", "refId": "A" }],
+      "title": "Records Created Today",
+      "type": "gauge"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "custom": { "drawStyle": "bars", "fillOpacity": 30 }, "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "id": 1,
+      "targets": [{ "expr": "sum(count_over_time({container_name=\"caddy\"} | json | __error__=\"\" [$__auto]))", "legendFormat": "Requests", "refId": "A" }],
+      "title": "Request Rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "bars", "fillOpacity": 30 } } },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "id": 2,
+      "targets": [{ "expr": "sum by (status) (count_over_time({container_name=\"caddy\"} | json | status >= 400 | __error__=\"\" [$__auto]))", "legendFormat": "{{status}}", "refId": "A" }],
+      "title": "Error Rate (4xx / 5xx)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "id": 22,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }, "tooltip": { "mode": "single" } },
+      "targets": [{ "expr": "max by (collection) (max_over_time({job=\"pds-stats\"} | json | msg=\"pds_collection_stats\" | __error__=\"\" | unwrap record_count [1h]))", "legendFormat": "{{collection}}", "queryType": "range", "refId": "A" }],
+      "title": "Records by Collection",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 16 },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "topk(20, sum by (request_uri) (count_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri=~\"/xrpc/.*\" | label_format request_uri=`{{ regexReplaceAll \"\\\\?.*\" .request_uri \"\" }}` | label_format request_uri=`{{ regexReplaceAll \"^/xrpc/\" .request_uri \"\" }}` [$__range])))",
+          "instant": true,
+          "legendFormat": "{{request_uri}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top XRPC Requests",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Count", "request_uri": "Operation" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Count" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 16 },
+      "id": 24,
+      "targets": [
+        {
+          "expr": "topk(20, avg_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri=~\"/xrpc/.*\" | label_format request_uri=`{{ regexReplaceAll \"\\\\?.*\" .request_uri \"\" }}` | label_format request_uri=`{{ regexReplaceAll \"^/xrpc/\" .request_uri \"\" }}` | unwrap duration [$__range]) by (request_uri) * 1000)",
+          "instant": true,
+          "legendFormat": "{{request_uri}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Slowest XRPC Requests",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Avg (ms)", "request_uri": "Operation" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Avg (ms)" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 16 },
+      "id": 18,
+      "options": { "legend": { "displayMode": "table", "placement": "right", "values": ["value", "percent"] }, "tooltip": { "mode": "single" } },
+      "targets": [
+        { "expr": "topk(20, sum by (request_uri) (count_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri=~\"/xrpc/.*\" | label_format request_uri=`{{ regexReplaceAll \"\\\\?.*\" .request_uri \"\" }}` | label_format request_uri=`{{ regexReplaceAll \"^/xrpc/\" .request_uri \"\" }}` [$__range])))", "legendFormat": "{{request_uri}}", "queryType": "range", "refId": "A" },
+        { "expr": "sum(count_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri=~\"/xrpc/.*\" [$__range])) - sum(topk(20, sum by (request_uri) (count_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri=~\"/xrpc/.*\" | label_format request_uri=`{{ regexReplaceAll \"\\\\?.*\" .request_uri \"\" }}` | label_format request_uri=`{{ regexReplaceAll \"^/xrpc/\" .request_uri \"\" }}` [$__range]))))", "legendFormat": "Other", "queryType": "range", "refId": "B" }
+      ],
+      "title": "Requests by Operation",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "id": 25,
+      "targets": [
+        {
+          "expr": "topk(20, sum by (request_remote_ip) (count_over_time({container_name=\"caddy\"} | json | __error__=\"\" [$__range])))",
+          "instant": true,
+          "legendFormat": "{{request_remote_ip}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Client IPs",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Requests", "request_remote_ip": "IP Address" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Requests" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 24 },
+      "id": 26,
+      "targets": [
+        {
+          "expr": "topk(15, sum by (user_agent) (count_over_time({container_name=\"caddy\"} | regexp \"\\\"User-Agent\\\":\\\\[\\\"(?P<user_agent>[^\\\"]*)\\\"\" | user_agent!=\"\" [$__range])))",
+          "instant": true,
+          "legendFormat": "{{user_agent}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top User Agents",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Requests", "user_agent": "User Agent" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Requests" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 24 },
+      "id": 27,
+      "targets": [
+        {
+          "expr": "topk(20, max by (remote_ip) (max_over_time({job=\"pds-stats\"} | json | msg=\"pds_subscriber_stats\" | __error__=\"\" | unwrap connection_count [5m])))",
+          "instant": true,
+          "legendFormat": "{{remote_ip}}",
+          "refId": "A"
+        }
+      ],
+      "title": "subscribeRepos Clients",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Connections", "remote_ip": "IP Address" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Connections" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 32 },
+      "id": 28,
+      "targets": [
+        {
+          "expr": "topk(20, sum by (request_uri) (count_over_time({container_name=\"caddy\"} | json | __error__=\"\" | request_uri!~\"/xrpc/.*\" | request_uri!=\"/\" | request_uri!~\"/.well-known/.*\" | request_uri!~\"/tls-check.*\" | request_uri!=\"\" [$__range])))",
+          "instant": true,
+          "legendFormat": "{{request_uri}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Suspicious Requests",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Attempts", "request_uri": "Path" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Attempts" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "semi-dark-yellow", "mode": "fixed" }, "noValue": "0", "unit": "locale" } },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 32 },
+      "id": 29,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [{ "expr": "max(max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap subscribe_repos_connections [5m]))", "queryType": "range", "refId": "A" }],
+      "title": "Firehose Subscribers",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [{ "matcher": { "id": "byName", "options": "Value #A" }, "properties": [{ "id": "decimals", "value": 0 }] }]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 32 },
+      "id": 30,
+      "targets": [
+        {
+          "expr": "topk(10, max by (creator) (max_over_time({job=\"pds-stats\"} | json | msg=\"pds_creator_stats\" | __error__=\"\" | creator!=\"\" | unwrap record_count [1h])))",
+          "instant": true,
+          "legendFormat": "{{creator}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Top Creators Today",
+      "transformations": [
+        { "id": "organize", "options": { "excludeByName": { "Time": true }, "renameByName": { "Value #A": "Records Today", "creator": "Creator" } } },
+        { "id": "sortBy", "options": { "fields": {}, "sort": [{ "desc": true, "field": "Records Today" }] } }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "green", "mode": "fixed" }, "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 } } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 40 },
+      "id": 16,
+      "targets": [{ "expr": "max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_records [$__auto])", "legendFormat": "Total Records", "queryType": "range", "refId": "A" }],
+      "title": "Records Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "purple", "mode": "fixed" }, "custom": { "drawStyle": "line", "fillOpacity": 10, "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 1 } } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 40 },
+      "id": 17,
+      "targets": [{ "expr": "max_over_time({job=\"pds-stats\"} | json | msg=\"pds_stats\" | __error__=\"\" | unwrap total_blobs [$__auto])", "legendFormat": "Total Blobs", "queryType": "range", "refId": "A" }],
+      "title": "Blobs Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "custom": { "fillOpacity": 10 }, "unit": "s" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 48 },
+      "id": 3,
+      "targets": [
+        { "expr": "quantile_over_time(0.50, {container_name=\"caddy\"} | json | __error__=\"\" | unwrap duration [$__auto]) by ()", "legendFormat": "p50", "refId": "A" },
+        { "expr": "quantile_over_time(0.95, {container_name=\"caddy\"} | json | __error__=\"\" | unwrap duration [$__auto]) by ()", "legendFormat": "p95", "refId": "B" },
+        { "expr": "quantile_over_time(0.99, {container_name=\"caddy\"} | json | __error__=\"\" | unwrap duration [$__auto]) by ()", "legendFormat": "p99", "refId": "C" }
+      ],
+      "title": "Request Latency (p50 / p95 / p99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" }, "custom": { "drawStyle": "bars", "fillOpacity": 50, "stacking": { "mode": "normal" } } } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 48 },
+      "id": 4,
+      "targets": [{ "expr": "sum by (container_name) (count_over_time({container_name=~\".+\"} [$__auto]))", "legendFormat": "{{container_name}}", "refId": "A" }],
+      "title": "Log Volume by Container",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 56 },
+      "id": 23,
+      "options": { "enableLogDetails": true, "prettifyLogMessage": true, "showTime": true, "sortOrder": "Descending" },
+      "targets": [{ "expr": "{container_name=\"pds\"} | json | __error__=\"\" | msg=~\"(createRecord|create-record|applyWrites|apply-writes)\"", "refId": "A" }],
+      "title": "Recent Record Creation",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 66 },
+      "id": 6,
+      "options": { "enableLogDetails": true, "showTime": true, "sortOrder": "Descending" },
+      "targets": [{ "expr": "{container_name=\"pds\"} |~ \"(?i)(error|panic|fatal|exception)\"", "refId": "A" }],
+      "title": "Recent PDS Errors",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 76 },
+      "id": 7,
+      "options": { "enableLogDetails": true, "showTime": true, "sortOrder": "Descending" },
+      "targets": [{ "expr": "{container_name=\"caddy\"} | json", "refId": "A" }],
+      "title": "Caddy Access Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 86 },
+      "id": 8,
+      "options": { "enableLogDetails": true, "showTime": true, "sortOrder": "Descending" },
+      "targets": [{ "expr": "{container_name=\"pds\"}", "refId": "A" }],
+      "title": "PDS Logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": "1m",
+  "tags": ["pds"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "PDS Overview",
+  "uid": "ffeyw058knojkf"
+}

@@ -1,0 +1,14 @@
+[Unit]
+Description=PDS Observability Stack (Grafana + Loki + Promtail)
+After=docker.service pds.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/pds
+ExecStart=/usr/bin/docker compose --file /pds/docker-compose.observability.yml up --detach
+ExecStop=/usr/bin/docker compose --file /pds/docker-compose.observability.yml down
+
+[Install]
+WantedBy=default.target
