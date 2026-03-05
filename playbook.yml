@@ -51,17 +51,19 @@
         mode: "0600"
       when: swap_enabled
 
+    - name: Check if swap is already active
+      command: swapon --show=NAME --noheadings
+      register: swap_check
+      changed_when: false
+      when: swap_enabled
+
     - name: Format swap file
       command: mkswap /swapfile
-      register: mkswap_result
-      changed_when: mkswap_result.rc == 0
-      args:
-        creates: /swapfile
-      when: swap_enabled and ansible_swaptotal_mb == 0
+      when: swap_enabled and swap_check.stdout == ""
 
     - name: Enable swap file
       command: swapon /swapfile
-      when: swap_enabled and ansible_swaptotal_mb == 0
+      when: swap_enabled and swap_check.stdout == ""
 
     - name: Add swap to fstab
       lineinfile:
