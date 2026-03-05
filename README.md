@@ -28,9 +28,14 @@ Ansible playbook for deploying a [Bluesky PDS](https://github.com/bluesky-social
 
 ## Setup
 
-### 1. Configure inventory
+### 1. Configure Ansible and inventory
 
-Edit `inventory.yml` with your server's IP and connection details.
+```bash
+cp ansible.cfg.example ansible.cfg
+cp inventory.yml.example inventory.yml
+```
+
+Edit `ansible.cfg` to set your preferred `remote_user`, then edit `inventory.yml` with your server's IP.
 
 ### 2. Create the vault password
 

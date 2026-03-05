@@ -1,3 +1,5 @@
+ansible.cfg
+inventory.yml
 vars/main.yml
 vars/secrets.yml
 .vault-pass
